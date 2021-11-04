@@ -135,22 +135,24 @@ sudo docker run --name netcat-srv --net=host --privileged subfuzion/netcat -n -v
 
 sudo tcpdump -i any -n -v tcp port 8089
 sudo tcpdump -i any -n -v icmp
-
 ```
+
 
 Use ```netshoot``` client pod to connect to the netcat server container.
 
+
+```
 # get utility VM IP address that runs netcat server container
 # SSH into the VM and get its internal IP or use AWS console to get the IP
-```
+
 echo "UTILITY_PVT_IP=$(hostname -I | awk '{print $1}')"
-```
+
 # initiate connection from netshoot pod to the standalone netcat server container
-```
+
 kubectl -n ns1-poc exec -t netshoot -- bash -c "nc -zv $UTILITY_PVT_IP 8089"
-```
+
 # test using ICMP
-```
+
 kubectl -n ns1-poc exec -t netshoot -- bash -c "ping -c3 $UTILITY_PVT_IP"
 ```
 
