@@ -4,10 +4,10 @@ Configure local shell to connect to the cluster, e.g. ```export KUBECONFIG=/path
 
 When using a cloud environment to host K8s cluster, the worker nodes could be configured on different subnets. For Egress Gateways feature to work properly in such environment, both the Egress Gateway pod, that is selected to serve as the gateway, must run on the same worker node as the client pod (i.e. netshoot). Otherwise, this feature won't work. Note that this issue is specific to using a cloud infrastructure as a demo environment for Egress Gateways feature.
 
-configure IPPool resource
-Once cluster is setup and Calico Enterprise is installed, deploy an IPPool resource that will be dedicated to egress gateways only.
-
-Make sure the IP range you select for this IPPool does not overlap with AWS VPC CIDR (default is 10.0.0.0/16).
+# configure IPPool resource
+Once cluster is setup and Calico Enterprise is installed, deploy an ```IPPool``` resource that will be dedicated to egress gateways only. <br/>
+<br/>
+Make sure the IP range you select for this IPPool does not overlap with ```AWS VPC CIDR``` (default is ```10.0.0.0/16```).
 
 ```
 kubectl apply -f setup/ippool-egress.yml
@@ -31,7 +31,7 @@ kubectl patch felixconfiguration.p default --type='merge' -p '{"spec":{"egressIP
 kubectl describe felixconfiguration.p default
 ```
 Configure pull secret for egress gateways namespace. 
-Get pull secret to pull CaliEnt images and copy it into the namespace you will create egress gateways in (e.g. egress-gw)
+Get pull secret to pull CaliEnt images and copy it into the namespace you will create egress gateways in (e.g. ```egress-gw```)
 
 ```
 EGRESS_GW_NS='egress-gw'
