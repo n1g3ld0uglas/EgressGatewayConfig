@@ -14,19 +14,20 @@ kubectl apply -f setup/ippool-egress.yml
 ```
 
 enable Egress gateways feature
-Enable Egress gateways in calico-node (a.k.a. Felix).
+Enable Egress gateways in ```calico-node``` (a.k.a. ```Felix```).
 
+```
 # example to enable per namespace only
-```
+
 kubectl patch felixconfiguration.p default --type='merge' -p '{"spec":{"egressIPSupport":"EnabledPerNamespace"}}'
-```
+
 # example to enable per namespace or per pod
-```
+
 kubectl patch felixconfiguration.p default --type='merge' -p '{"spec":{"egressIPSupport":"EnabledPerNamespaceOrPerPod"}}'
-```
+
 
 # verify configuration
-```
+
 kubectl describe felixconfiguration.p default
 ```
 Configure pull secret for egress gateways namespace. 
@@ -36,16 +37,17 @@ Get pull secret to pull CaliEnt images and copy it into the namespace you will c
 EGRESS_GW_NS='egress-gw'
 kubectl create ns $EGRESS_GW_NS
 kubectl get secret tigera-pull-secret --namespace=calico-system --export -o yaml | kubectl apply --namespace=$EGRESS_GW_NS -f -
-```
+
 # deploy egress gateways into your namespace
-```
+
 kubectl apply -f setup/egress-gw.yml
-```
+
 # view annotation configuration on egress gateways
-```
+
 kubectl -n $EGRESS_GW_NS get po -oyaml | grep -i 'cni.projectcalico.org/ipv4pools'
 ```
-configure namespace or pod to use egress gateway
+
+# Configure namespace or pod to use egress gateway
 If you've configured Egress gateways feature on per namespace basis, then apply annotations to namespaces only. 
 If you enabled the feature to be use on per pod basis too, then annotate the pods that should use egress gateways functionality.
 
@@ -62,31 +64,34 @@ However, if you choose to use a different namespace, you can label the namespace
 
 ```
 CLIENT_POD_NS='ns1-poc'
-```
+
 
 # review annotations on client POD namespace
-```
+
 kubectl get ns $CLIENT_POD_NS -oyaml | grep -m2 -i -m1 'annotations:' -A6
-```
+
 # label namespace if required annotations are missing
 # selector annotation must match label(s) configured on egress gateways deployment
-```
+
 kubectl annotate ns $CLIENT_POD_NS egress.projectcalico.org/selector='egress-code == "red"'
-```
+
 # namespaceSelector annotation is required when egress gateways pods are hosted in a different namespace than the client pods that use them
-```
+
 kubectl annotate ns $CLIENT_POD_NS egress.projectcalico.org/namespaceSelector='projectcalico.org/name == "egress-gw"'
 ```
-verify the feature operation
+
+# Verify the feature operation
+
 If you shutdown the utility instance and then start it again later, make sure to add back the necessary route for the Egress IPPool.
 
-The testing plan:
+## The Testing Plan:
 
-launch an ec2 instance that is not a part of k8s cluster (i.e. a utility instance). The easiest option is to right click on one of the existing worker nodes and use Lunch More Like This option from the popup menu to create an ec2 instance with Docker engine in it. Edit Name tag to give the instance a meaningful name. The other default options for the instance are OK.
-SSH into the newly created ec2 node and launch a container on the host network with a sever that listens on a certain port, e.g. netcat server
-configure the route on the ec2 instance for the Egress gateway IP(s) so that the request with the Egress Gateway IP as a source, can be properly routed back to the origin, i.e. the worker node that houses the client pod that initiated the connection
-use the deployed client pod (i.e. netshoot) to connect to the netcat server
-review the logs of netcat server to verify source IP for incoming connections
+* Launch an ec2 instance that is not a part of k8s cluster (i.e. a utility instance). <br/>
+The easiest option is to right click on one of the existing worker nodes and use Lunch More Like This option from the popup menu to create an ec2 instance with Docker engine in it. Edit Name tag to give the instance a meaningful name. The other default options for the instance are OK.
+* SSH into the newly created ec2 node and launch a container on the host network with a sever that listens on a certain port, e.g. netcat server
+* Configure the route on the ec2 instance for the Egress gateway IP(s) so that the request with the Egress Gateway IP as a source, can be properly routed back to the origin, i.e. the worker node that houses the client pod that initiated the connection
+* Use the deployed client pod (i.e. netshoot) to connect to the netcat server
+* Review the logs of netcat server to verify source IP for incoming connections
 
 ```
 # SSH into a utility node
