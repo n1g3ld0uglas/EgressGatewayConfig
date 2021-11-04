@@ -16,21 +16,23 @@ kubectl apply -f setup/ippool-egress.yml
 enable Egress gateways feature
 Enable Egress gateways in ```calico-node``` (a.k.a. ```Felix```).
 
+
+### Example to enable per namespace only
 ```
-# example to enable per namespace only
-
 kubectl patch felixconfiguration.p default --type='merge' -p '{"spec":{"egressIPSupport":"EnabledPerNamespace"}}'
+```
 
-# example to enable per namespace or per pod
-
+### Example to enable per namespace or per pod
+```
 kubectl patch felixconfiguration.p default --type='merge' -p '{"spec":{"egressIPSupport":"EnabledPerNamespaceOrPerPod"}}'
+```
 
-
-# verify configuration
-
+### Verify configuration
+```
 kubectl describe felixconfiguration.p default
 ```
-Configure pull secret for egress gateways namespace. 
+
+### Configure pull secret for egress gateways namespace. 
 Get pull secret to pull CaliEnt images and copy it into the namespace you will create egress gateways in (e.g. ```egress-gw```)
 
 ```
