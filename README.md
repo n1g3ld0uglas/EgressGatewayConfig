@@ -175,24 +175,30 @@ when EG is configured, calico-node would have some log entries similar to these:
 Example outputs from Ubuntu worker
 ip rules
 
+```
 $ ip rule
 
 0:      from all lookup local
 100:    from 192.168.36.214 fwmark 0x80000/0x80000 lookup 250
 32766:  from all lookup main
 32767:  from all lookup default
+```
 table routes when egress gateway has 2 pods
 
+```
 $ ip route list table 250
 
 default onlink
   nexthop via 10.10.10.0 dev egress.calico weight 1 onlink
   nexthop via 10.10.10.1 dev egress.calico weight 1 onlink
+```
 ip rules if both, client pod and egress gateway pod are housed by the same worker node
 
+```
 $ ip rule
 0:      from all lookup local
 100:    from 10.10.10.0 fwmark 0x80000/0x80000 lookup 250
 100:    from 192.168.36.214 fwmark 0x80000/0x80000 lookup 250
 32766:  from all lookup main
 32767:  from all lookup default
+```
