@@ -87,54 +87,58 @@ SSH into the newly created ec2 node and launch a container on the host network w
 configure the route on the ec2 instance for the Egress gateway IP(s) so that the request with the Egress Gateway IP as a source, can be properly routed back to the origin, i.e. the worker node that houses the client pod that initiated the connection
 use the deployed client pod (i.e. netshoot) to connect to the netcat server
 review the logs of netcat server to verify source IP for incoming connections
-# SSH into a utility node
+
 ```
+# SSH into a utility node
+
 EC2_PUB_IP='xx.xx.xx.xx'
 SSH_KEY='/path/to/ssh_key'
-```
+
 # assuming Ubuntu image is used for the host that has 'ubuntu' user
-```
+
 ssh -i $SSH_KEY -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@$EC2_PUB_IP
-```
+
 # if docker is not installed, install docker on the utility node
-```
+
 if [ -z $(which docker) ]; then
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
   sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
   sudo apt-get update -y
   sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 fi
-```
+
 
 # route vars
 # use IP of your egress gateway pod, e.g. 10.10.10.0
-```
+
 EGRESS_IP='10.10.10.0/31'
-```
+
 # get internal IP of a worker node that runs the client pod from AWS console
 # or using shell that can talk to your k8s cluster
-```
+
 echo "EGRESS_WORKER_NODE_IP=$(kubectl -n ns1-poc get po -l 'app=netshoot' -o jsonpath='{.items[].status.hostIP}')"
-```
+
 # configure route for Egress Gateway IP(s)
-```
+
 sudo ip r a ${EGRESS_IP} via ${EGRESS_WORKER_NODE_IP}
-```
+
 # test the route
-```
+
 ping 10.10.10.0
-```
+
 # launch netcat server as a standalone Docker container using host network
 # the shell will attach to container STDOUT; if you don't want this, add '-d' flag to 'docker run' command
-```
+
 sudo docker run --name netcat-srv --net=host --privileged subfuzion/netcat -n -v -l -k -p 8089
-```
+
 # you can use tcmpdump to capture ICMP or TCP packets on ec2 instance
-```
+
 sudo tcpdump -i any -n -v tcp port 8089
 sudo tcpdump -i any -n -v icmp
+
 ```
-Use netshoot client pod to connect to the netcat server container.
+
+Use ```netshoot``` client pod to connect to the netcat server container.
 
 # get utility VM IP address that runs netcat server container
 # SSH into the VM and get its internal IP or use AWS console to get the IP
