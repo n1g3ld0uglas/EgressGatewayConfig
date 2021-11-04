@@ -150,11 +150,12 @@ kubectl -n ns1-poc exec -t netshoot -- bash -c "nc -zv $UTILITY_PVT_IP 8089"
 kubectl -n ns1-poc exec -t netshoot -- bash -c "ping -c3 $UTILITY_PVT_IP"
 ```
 
-troubleshoot
+# Troubleshooting Egress Gateway
 When using AWS infrastructure for K8s cluster and seeing the egress traffic not using the Egress Gateway IP, make sure that the Egress Gateway pod, that was selected as the gateway, runs on the worker node that is on the same subnet as the node where the client pod runs, i.e. netshoot. For the guaranteed result, you can configure the Egress Gateway pod to run on the same worker node as the client pod.
 
-Check IP rules and route table on the host that runs the client pod(s). If you see a rule with your pod's IP, but no routes in the table, then review and make sure that annotations configuration for the client pod and/or its namespace match the egress gateways namespace and labels.
-
+Check IP rules and route table on the host that runs the client pod(s). <br/>
+If you see a rule with your pod's IP, but no routes in the table, then review and make sure that annotations configuration for the client pod and/or its namespace match the egress gateways namespace and labels.
+```
 # SSH into the node that runs your client pod(s)
 
 # check ip rules to get route table name (could be a word or a number)
@@ -162,17 +163,24 @@ ip rule
 TABLE='xxx' # set table name
 # view routes in the table with your pod IP
 ip route list table $TABLE
-Egress Gateway configures egress.calico device that it uses to establish VXLAN tunnel between EG pods and the client pods.
+```
 
+Egress Gateway configures ```egress.calico``` device that it uses to establish VXLAN tunnel between EG pods and the client pods.
+```
 ip link | grep -i egress
-when EG is configured, calico-node would have some log entries similar to these:
+```
 
+when EG is configured, ```calico-node``` would have some log entries similar to these:
+
+```
 2021-05-26 17:47:06.676 [INFO][61] felix/egress_ip_mgr.go 619: egress ip VXLAN tunnel device configured
 2021-05-26 17:47:16.677 [INFO][61] felix/egress_ip_mgr.go 619: egress ip VXLAN tunnel device configured
 2021-05-26 17:47:18.342 [INFO][61] felix/route_table.go 445: Queueing a resync of routing table. ifaceRegex="^egress.calico$" ipVersion=0x4
 2021-05-26 17:47:18.342 [INFO][61] felix/route_table.go 445: Queueing a resync of routing table. ifaceRegex="^egress.calico$" ipVersion=0x4
 2021-05-26 17:47:18.344 [INFO][61] felix/route_table.go 981: Syncing interface L2 routes ifaceName="egress.calico" ifaceRegex="^egress.calico$" ipVersion=0x4
-Example outputs from Ubuntu worker
+```
+
+## Example outputs from Ubuntu worker
 ip rules
 
 ```
