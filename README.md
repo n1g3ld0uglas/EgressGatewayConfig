@@ -1,0 +1,2 @@
+# EgressGatewayConfig
+EgressGatewayConfig
