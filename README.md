@@ -1,5 +1,8 @@
-# EgressGatewayConfig
+# Egress Gateway Configuration and Troubleshooting
 
+This lab requires the use of NAT Outgoing on those IPPools: <br/>
+https://docs.tigera.io/networking/egress-gateway#source-ip <br/>
+<br/>
 Configure local shell to connect to the cluster, e.g. ```export KUBECONFIG=/path/to/kubeconfig```.
 
 When using a cloud environment to host K8s cluster, the worker nodes could be configured on different subnets. For Egress Gateways feature to work properly in such environment, both the Egress Gateway pod, that is selected to serve as the gateway, must run on the same worker node as the client pod (i.e. netshoot). Otherwise, this feature won't work. Note that this issue is specific to using a cloud infrastructure as a demo environment for Egress Gateways feature.
